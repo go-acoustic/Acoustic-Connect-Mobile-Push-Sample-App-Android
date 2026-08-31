@@ -12,6 +12,7 @@ package com.acoustic.connect.android.demo.connect.external
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -31,6 +32,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.acoustic.connect.android.demo.connect.external.gestures.GestureScreen
 import com.acoustic.connect.android.demo.connect.external.identity.IdentityScreen
 import com.acoustic.connect.android.demo.connect.external.notification.NotificationScreen
 import com.acoustic.connect.android.demo.connect.external.notification.NotificationViewModel
@@ -38,6 +40,12 @@ import com.acoustic.connect.android.demo.connect.external.ui.theme.AcousticPurpl
 
 private const val ROUTE_NOTIFICATION = "notification_screen"
 private const val ROUTE_IDENTITY = "identity_screen"
+
+/**
+ * Third route so route changes are observable as a sequence rather than a two-tab toggle, and so the
+ * gesture targets live on a screen of their own. Name matches the XML sample app.
+ */
+private const val ROUTE_GESTURES = "gestures_screen"
 
 private data class Tab(
     val route: String,
@@ -49,6 +57,7 @@ private data class Tab(
 private val tabs = listOf(
     Tab(route = ROUTE_NOTIFICATION, label = "Notification", icon = Icons.Filled.Notifications, testTagId = "tab_notification"),
     Tab(route = ROUTE_IDENTITY, label = "Identity", icon = Icons.Filled.Person, testTagId = "tab_identity"),
+    Tab(route = ROUTE_GESTURES, label = "Gestures", icon = Icons.Filled.TouchApp, testTagId = "tab_gestures"),
 )
 
 @Composable
@@ -106,6 +115,9 @@ fun MainScreen(navController: NavHostController, notificationViewModel: Notifica
             }
             composable(ROUTE_IDENTITY) {
                 IdentityScreen()
+            }
+            composable(ROUTE_GESTURES) {
+                GestureScreen()
             }
         }
     }

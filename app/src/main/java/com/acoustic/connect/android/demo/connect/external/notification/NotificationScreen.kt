@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.acoustic.connect.android.demo.connect.external.analytics.ScreenviewUnloadEffect
 import com.acoustic.connect.android.connectmod.Connect
 import com.acoustic.connect.android.connectmod.composeui.customcomposable.LoggedButton
 import com.acoustic.connect.android.connectmod.composeui.customcomposable.LoggedText
@@ -61,6 +62,8 @@ fun NotificationScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val activity = LocalContext.current as? ComponentActivity
+
+    ScreenviewUnloadEffect("notification_screen")
 
     LifecycleResumeEffect(Unit) {
         viewModel.refreshAuthorization()

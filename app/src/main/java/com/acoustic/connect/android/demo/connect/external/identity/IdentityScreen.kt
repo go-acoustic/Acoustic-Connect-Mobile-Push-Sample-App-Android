@@ -50,6 +50,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.acoustic.connect.android.demo.connect.external.analytics.ScreenviewUnloadEffect
 import com.acoustic.connect.android.connectmod.composeui.customcomposable.LoggedButton
 import com.acoustic.connect.android.connectmod.composeui.customcomposable.LoggedOutlinedTextField
 import com.acoustic.connect.android.connectmod.composeui.customcomposable.LoggedText
@@ -64,6 +65,8 @@ fun IdentityScreen(
     modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    ScreenviewUnloadEffect("identity_screen")
 
     LifecycleResumeEffect(Unit) {
         viewModel.refreshSdkEnabled()
