@@ -24,11 +24,10 @@ const val EVENT_ORIENTATION_CHANGE = "orientationChange"
 /**
  * Process-level app-state instrumentation for the CA-144239 signal audit.
  *
- * <p>The SDK already covers part of the app-state surface through `ConnectComposeUI.ConnectWrapper`:
- * its `ComposeUiLifecycle` observer calls `Connect.onResume`/`Connect.onPause` on the composition's
- * lifecycle, and its navigation listener emits the screenview LOAD on each route change. Those are
- * deliberately not repeated here — duplicating them is exactly the kind of double-count the ticket
- * is looking for.
+ * <p>The SDK covers part of the app-state surface through `ConnectComposeUI.ConnectWrapper`: its
+ * `ComposeUiLifecycle` observer calls `Connect.onResume`/`Connect.onPause` on the composition's
+ * lifecycle. That is deliberately not repeated here — duplicating it is exactly the kind of
+ * double-count the ticket is looking for.
  *
  * <p>What the SDK does not derive on its own is *process* state. `Connect.onPause` fires whenever
  * the activity pauses, which is not the same as the app leaving the foreground, and nothing reports
@@ -51,15 +50,13 @@ object AppStateSignals {
      * Emits [name] as a custom event, tagged with the session it belongs to so the collector-side
      * payload can be matched back to a specific run.
      *
-     * <p>Calls made before the SDK is enabled are recorded but not sent: `ConnectWrapper` enables
-     * the SDK from a `LaunchedEffect`, so the first activity start of a cold launch can land first.
+     * <p>Not gated on `Connect.isEnabled()`. In this integration that returns false for the whole
+     * life of the process even while the SDK is initialised and posting — gating on it silently
+     * dropped every app-state signal. The SDK's own return value is recorded instead, which is
+     * also the more honest thing to show in the log.
      */
     internal fun emit(name: String, extras: Map<String, String> = emptyMap()) {
-        if (!Connect.isEnabled()) {
-            SignalLog.record(name, "not sent — SDK not enabled yet", accepted = null)
-            return
-        }
-        val sessionId = Connect.getCurrentSessionId().orEmpty()
+        val sessionId = currentSessionId()
         val payload = extras + ("sessionId" to sessionId)
         // The SDK declares the payload as HashMap<String?, String?>, so the nullable element types
         // have to be spelled out even though nothing here puts a null in it.
@@ -70,6 +67,28 @@ object AppStateSignals {
     private fun describe(payload: Map<String, String>): String =
         payload.entries.joinToString(", ") { "${it.key}=${it.value}" }
 }
+
+/**
+ * Reads a String getter that the SDK declares as non-null but does not always satisfy.
+ *
+ * <p>`Connect.getCurrentSessionId()` and `getCurrentLogicalPageName()` delegate to Tealeaf getters
+ * that return null before a session or screen exists, and the SDK's own Kotlin null-check turns
+ * that into a `NullPointerException` inside the getter. Reading the session id from
+ * `Application.ActivityLifecycleCallbacks.onActivityStarted` therefore crashes the process on cold
+ * launch, which is how this was found. Catching it here keeps the sample usable; the fix belongs in
+ * the SDK.
+ */
+private inline fun readNullableSdkString(read: () -> String): String =
+    try {
+        read()
+    } catch (npe: NullPointerException) {
+        ""
+    }
+
+internal fun currentSessionId(): String = readNullableSdkString { Connect.getCurrentSessionId() }
+
+internal fun currentLogicalPageName(): String =
+    readNullableSdkString { Connect.getCurrentLogicalPageName() }
 
 /**
  * Foreground/background from the count of started activities.

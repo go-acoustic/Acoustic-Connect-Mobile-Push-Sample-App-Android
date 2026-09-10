@@ -19,10 +19,11 @@ import com.tl.uic.model.ScreenviewType
 /**
  * Logs a screenview UNLOAD for {@code screenName} when the composable leaves composition.
  *
- * <p>Only the UNLOAD half is logged here: `ConnectComposeUI.ConnectWrapper` already emits the LOAD
- * from the navigation route change, so logging it again would double-count. The XML sample app logs
- * both halves explicitly because it has no equivalent automatic route observer — the emitted signal
- * pair is identical either way, which is what keeps the two apps comparable.
+ * <p>Measured behaviour (CA-144239, SDK 11.0.8-beta): this call is rejected — `logScreenview`
+ * returns false for every screen, so no UNLOAD reaches the collector. `ConnectWrapper` does not
+ * make up for it: it emits a LOAD when the composition starts, not on route change, so navigating
+ * between tabs produces no screenview at all. The call is kept, and its result recorded, so the
+ * gap stays visible in the app rather than only in a collector query.
  */
 @Composable
 fun ScreenviewUnloadEffect(screenName: String) {
@@ -30,7 +31,10 @@ fun ScreenviewUnloadEffect(screenName: String) {
     DisposableEffect(screenName) {
         onDispose {
             (context as? Activity)?.let { activity ->
-                Connect.logScreenview(activity, screenName, ScreenviewType.UNLOAD)
+                // The return value is recorded rather than dropped: the audit needs to know whether
+                // the SDK accepted the UNLOAD, and no UNLOAD ever reached the collector.
+                val accepted = Connect.logScreenview(activity, screenName, ScreenviewType.UNLOAD)
+                SignalLog.record("screenviewUnload", screenName, accepted)
             }
         }
     }

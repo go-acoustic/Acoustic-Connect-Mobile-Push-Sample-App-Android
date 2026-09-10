@@ -39,6 +39,8 @@ import com.acoustic.connect.android.connectmod.composeui.customcomposable.Logged
 import com.acoustic.connect.android.connectmod.composeui.customcomposable.LoggedText
 import com.acoustic.connect.android.demo.connect.external.analytics.ScreenviewUnloadEffect
 import com.acoustic.connect.android.demo.connect.external.analytics.SignalLog
+import com.acoustic.connect.android.demo.connect.external.analytics.currentLogicalPageName
+import com.acoustic.connect.android.demo.connect.external.analytics.currentSessionId
 import com.acoustic.connect.android.demo.connect.external.ui.theme.LightCard
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -68,10 +70,13 @@ fun AppStateScreen(modifier: Modifier = Modifier) {
 
     val entries by SignalLog.entries.collectAsStateWithLifecycle()
 
+    // Read unconditionally rather than behind isEnabled(): that flag reads false in this
+    // integration even while the SDK is running, and hiding the session id behind it made the
+    // screen look broken when it was the flag that was wrong.
     fun refresh() {
         sdkEnabled = Connect.isEnabled()
-        sessionId = if (sdkEnabled) Connect.getCurrentSessionId().orEmpty() else ""
-        logicalPage = if (sdkEnabled) Connect.getCurrentLogicalPageName().orEmpty() else ""
+        sessionId = currentSessionId()
+        logicalPage = currentLogicalPageName()
     }
 
     ScreenviewUnloadEffect(SCREEN_NAME)
@@ -114,7 +119,6 @@ fun AppStateScreen(modifier: Modifier = Modifier) {
                     SignalLog.record(EVENT_SESSION_START, "Connect.startSession()", started)
                     refresh()
                 },
-                enabled = sdkEnabled,
                 modifier = Modifier.semantics { testTag = "btn_start_session" },
             ) {
                 LoggedText(text = "Start session")

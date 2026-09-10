@@ -65,8 +65,8 @@ private val SWIPE_THRESHOLD = 48.dp
  * pointer handling reports the gesture — and that is exactly what this screen exists to observe. Only
  * the labels and list rows use `LoggedText`.
  *
- * <p>Screenview: `ConnectWrapper` logs the LOAD from the navigation route change, so this screen adds
- * only the matching UNLOAD on exit. The XML sample logs both explicitly; the emitted pair is the same.
+ * <p>Screenview: this screen adds only the UNLOAD on exit. See [ScreenviewUnloadEffect] — neither
+ * half currently reaches the collector on a route change, which is one of the ticket's findings.
  */
 @Composable
 fun GestureScreen() {
