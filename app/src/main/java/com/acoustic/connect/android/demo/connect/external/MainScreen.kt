@@ -11,6 +11,7 @@ package com.acoustic.connect.android.demo.connect.external
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.Icon
@@ -32,6 +33,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.acoustic.connect.android.demo.connect.external.appstate.AppStateScreen
 import com.acoustic.connect.android.demo.connect.external.gestures.GestureScreen
 import com.acoustic.connect.android.demo.connect.external.identity.IdentityScreen
 import com.acoustic.connect.android.demo.connect.external.notification.NotificationScreen
@@ -47,6 +49,13 @@ private const val ROUTE_IDENTITY = "identity_screen"
  */
 private const val ROUTE_GESTURES = "gestures_screen"
 
+/**
+ * Fourth route for the app-state half of CA-144239's scope. Session, foreground/background and
+ * orientation signals have no natural home on a feature screen, and reading them back needs a
+ * surface that survives the transition that produced them. Name matches the XML sample app.
+ */
+private const val ROUTE_APP_STATE = "app_state_screen"
+
 private data class Tab(
     val route: String,
     val label: String,
@@ -58,6 +67,7 @@ private val tabs = listOf(
     Tab(route = ROUTE_NOTIFICATION, label = "Notification", icon = Icons.Filled.Notifications, testTagId = "tab_notification"),
     Tab(route = ROUTE_IDENTITY, label = "Identity", icon = Icons.Filled.Person, testTagId = "tab_identity"),
     Tab(route = ROUTE_GESTURES, label = "Gestures", icon = Icons.Filled.TouchApp, testTagId = "tab_gestures"),
+    Tab(route = ROUTE_APP_STATE, label = "App state", icon = Icons.Filled.Insights, testTagId = "tab_app_state"),
 )
 
 @Composable
@@ -118,6 +128,9 @@ fun MainScreen(navController: NavHostController, notificationViewModel: Notifica
             }
             composable(ROUTE_GESTURES) {
                 GestureScreen()
+            }
+            composable(ROUTE_APP_STATE) {
+                AppStateScreen()
             }
         }
     }

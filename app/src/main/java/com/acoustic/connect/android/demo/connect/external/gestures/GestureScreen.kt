@@ -167,7 +167,7 @@ fun GestureScreen() {
  * short drag that ends near where it began is not a swipe. The dominant axis wins, so a diagonal
  * still reports one direction.
  */
-private fun swipeName(travel: Offset, thresholdPx: Float): String? = when {
+internal fun swipeName(travel: Offset, thresholdPx: Float): String? = when {
     abs(travel.x) < thresholdPx && abs(travel.y) < thresholdPx -> null
     abs(travel.x) >= abs(travel.y) -> if (travel.x > 0) "swipeRight" else "swipeLeft"
     else -> if (travel.y > 0) "swipeDown" else "swipeUp"
