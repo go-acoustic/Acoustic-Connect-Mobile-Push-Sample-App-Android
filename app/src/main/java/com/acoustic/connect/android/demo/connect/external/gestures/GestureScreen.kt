@@ -11,6 +11,7 @@ package com.acoustic.connect.android.demo.connect.external.gestures
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -42,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import com.acoustic.connect.android.connectmod.composeui.customcomposable.LoggedText
 import com.acoustic.connect.android.demo.connect.external.R
 import com.acoustic.connect.android.demo.connect.external.analytics.ScreenviewUnloadEffect
+import kotlin.math.abs
 
 /** Logical page name — kept identical to the XML sample app so signals are directly comparable. */
 private const val SCREEN_NAME = "gestures_screen"
@@ -49,6 +52,9 @@ private const val SCREEN_NAME = "gestures_screen"
 private const val LIST_ROWS = 40
 private const val MIN_ZOOM = 0.5f
 private const val MAX_ZOOM = 4f
+
+/** Travel a drag must clear before it counts as a swipe rather than a sloppy tap. */
+private val SWIPE_THRESHOLD = 48.dp
 
 /**
  * Gesture playground: one target per gesture category in CA-144239's scope, so each can be exercised
@@ -106,6 +112,24 @@ fun GestureScreen() {
             },
         )
 
+        GestureTarget(
+            label = "Swipe me — any direction",
+            testTagId = "gesture_swipe",
+            modifier = Modifier.pointerInput(Unit) {
+                val thresholdPx = SWIPE_THRESHOLD.toPx()
+                var travel = Offset.Zero
+                detectDragGestures(
+                    onDragStart = { travel = Offset.Zero },
+                    // `detectDragGestures` consumes the pointer changes itself once touch slop
+                    // is crossed, so a Compose-level observer would not see this drag. The SDK is
+                    // expected to report it from the activity-level touch dispatch instead —
+                    // confirming that is part of the CA-144239 audit.
+                    onDrag = { _, dragAmount -> travel += dragAmount },
+                    onDragEnd = { swipeName(travel, thresholdPx)?.let { lastGesture = it } },
+                )
+            },
+        )
+
         Image(
             painter = painterResource(R.drawable.ic_launcher_logo),
             contentDescription = "Pinch to zoom",
@@ -136,6 +160,17 @@ fun GestureScreen() {
             }
         }
     }
+}
+
+/**
+ * Direction label for a completed drag, or null when neither axis cleared [SWIPE_THRESHOLD] — a
+ * short drag that ends near where it began is not a swipe. The dominant axis wins, so a diagonal
+ * still reports one direction.
+ */
+private fun swipeName(travel: Offset, thresholdPx: Float): String? = when {
+    abs(travel.x) < thresholdPx && abs(travel.y) < thresholdPx -> null
+    abs(travel.x) >= abs(travel.y) -> if (travel.x > 0) "swipeRight" else "swipeLeft"
+    else -> if (travel.y > 0) "swipeDown" else "swipeUp"
 }
 
 /** Uniform tappable block — plain `Box`, so only the SDK's global gesture path can report it. */
