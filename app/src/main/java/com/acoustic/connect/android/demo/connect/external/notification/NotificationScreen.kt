@@ -119,6 +119,7 @@ private fun NotificationContent(
             NotificationAuthorizationCard(
                 authorized = state.isNotificationAuthorized,
                 statusMessage = state.notificationStatusMessage,
+                isStatusMessageError = state.isError,
                 isSdkEnabled = state.isSdkEnabled,
                 onRequestAuthorization = onRequestAuthorization,
             )
@@ -132,6 +133,10 @@ private fun NotificationContent(
 private fun NotificationAuthorizationCard(
     authorized: Boolean,
     statusMessage: String = "",
+    // Drives the status-message color. Not derived from statusMessage's text — a prior version
+    // matched on "startsWith(\"Error\")" / "contains(\"disabled\")" and silently rendered any
+    // future error message green if its wording ever changed.
+    isStatusMessageError: Boolean = false,
     isSdkEnabled: Boolean,
     onRequestAuthorization: () -> Unit,
 ) {
@@ -196,11 +201,7 @@ private fun NotificationAuthorizationCard(
                 LoggedText(
                     text = statusMessage,
                     style = MaterialTheme.typography.bodySmall,
-                    color = when {
-                        statusMessage.startsWith("Error") -> MaterialTheme.colorScheme.error
-                        statusMessage.contains("disabled") -> MaterialTheme.colorScheme.error
-                        else -> AcousticGreen
-                    },
+                    color = if (isStatusMessageError) MaterialTheme.colorScheme.error else AcousticGreen,
                 )
             }
         }

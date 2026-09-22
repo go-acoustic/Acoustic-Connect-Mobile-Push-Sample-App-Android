@@ -50,7 +50,7 @@ private const val ROUTE_IDENTITY = "identity_screen"
 private const val ROUTE_GESTURES = "gestures_screen"
 
 /**
- * Fourth route for the app-state half of CA-144239's scope. Session, foreground/background and
+ * Fourth route for the app-state half of the analytics audit's scope. Session, foreground/background and
  * orientation signals have no natural home on a feature screen, and reading them back needs a
  * surface that survives the transition that produced them. Name matches the XML sample app.
  */

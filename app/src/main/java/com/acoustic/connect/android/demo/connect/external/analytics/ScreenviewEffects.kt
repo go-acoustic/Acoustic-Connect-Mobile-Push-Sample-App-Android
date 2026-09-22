@@ -14,12 +14,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
 import com.acoustic.connect.android.connectmod.Connect
-import com.tl.uic.model.ScreenviewType
+import com.acoustic.connect.android.connectmod.model.ConnectScreenviewType
 
 /**
  * Logs a screenview UNLOAD for {@code screenName} when the composable leaves composition.
  *
- * <p>Measured behaviour (CA-144239, SDK 11.0.8-beta): this call is rejected — `logScreenview`
+ * <p>Measured behaviour (SDK 11.0.8-beta): this call is rejected — `logScreenview`
  * returns false for every screen, so no UNLOAD reaches the collector. `ConnectWrapper` does not
  * make up for it: it emits a LOAD when the composition starts, not on route change, so navigating
  * between tabs produces no screenview at all. The call is kept, and its result recorded, so the
@@ -33,7 +33,7 @@ fun ScreenviewUnloadEffect(screenName: String) {
             (context as? Activity)?.let { activity ->
                 // The return value is recorded rather than dropped: the audit needs to know whether
                 // the SDK accepted the UNLOAD, and no UNLOAD ever reached the collector.
-                val accepted = Connect.logScreenview(activity, screenName, ScreenviewType.UNLOAD)
+                val accepted = Connect.logScreenview(activity, screenName, ConnectScreenviewType.UNLOAD)
                 SignalLog.record("screenviewUnload", screenName, accepted)
             }
         }
