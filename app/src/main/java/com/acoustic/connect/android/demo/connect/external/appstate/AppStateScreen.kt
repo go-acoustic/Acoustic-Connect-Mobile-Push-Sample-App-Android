@@ -52,7 +52,7 @@ private const val SCREEN_NAME = "app_state_screen"
 private const val EVENT_SESSION_START = "sessionStart"
 
 /**
- * App-state readout for the CA-144239 audit.
+ * App-state readout for the analytics audit.
  *
  * <p>Shows the SDK state that the app-state signals are meant to carry — session id, logical page,
  * enabled flag — next to the running [SignalLog], so a foreground, background or rotation can be

@@ -22,7 +22,7 @@ const val EVENT_APP_BACKGROUND = "appBackground"
 const val EVENT_ORIENTATION_CHANGE = "orientationChange"
 
 /**
- * Process-level app-state instrumentation for the CA-144239 signal audit.
+ * Process-level app-state instrumentation for the analytics signal audit.
  *
  * <p>The SDK covers part of the app-state surface through `ConnectComposeUI.ConnectWrapper`: its
  * `ComposeUiLifecycle` observer calls `Connect.onResume`/`Connect.onPause` on the composition's

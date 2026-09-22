@@ -57,7 +57,7 @@ private const val MAX_ZOOM = 4f
 private val SWIPE_THRESHOLD = 48.dp
 
 /**
- * Gesture playground: one target per gesture category in CA-144239's scope, so each can be exercised
+ * Gesture playground: one target per gesture category in the analytics audit's scope, so each can be exercised
  * against a real control rather than empty screen space.
  *
  * <p>The gesture targets deliberately use plain Compose primitives rather than the SDK's `Logged*`
@@ -123,7 +123,7 @@ fun GestureScreen() {
                     // `detectDragGestures` consumes the pointer changes itself once touch slop
                     // is crossed, so a Compose-level observer would not see this drag. The SDK is
                     // expected to report it from the activity-level touch dispatch instead —
-                    // confirming that is part of the CA-144239 audit.
+                    // confirming that is part of the analytics audit.
                     onDrag = { _, dragAmount -> travel += dragAmount },
                     onDragEnd = { swipeName(travel, thresholdPx)?.let { lastGesture = it } },
                 )

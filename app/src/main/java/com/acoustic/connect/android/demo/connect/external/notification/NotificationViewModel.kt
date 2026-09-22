@@ -58,7 +58,7 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
                 fetchToken()
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to turn on push: ${e.message}")
-                _uiState.update { it.copy(notificationStatusMessage = "Error: failed to enable push notifications") }
+                _uiState.update { it.copy(notificationStatusMessage = "Error: failed to enable push notifications", isError = true) }
             }
         } else {
             prefs.edit().remove(KEY_LAST_TOKEN).apply()
@@ -66,6 +66,7 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
                 it.copy(
                     isNotificationAuthorized = false,
                     notificationStatusMessage = "Error: push notifications permission denied",
+                    isError = true,
                 )
             }
         }
@@ -85,6 +86,7 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
                 isNotificationAuthorized = areNotificationsPermitted(),
                 tokenStatus = TokenStatus.Success(tokenString),
                 notificationStatusMessage = "",
+                isError = false,
             )
         }
     }
@@ -104,6 +106,7 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
                         isNotificationAuthorized = areNotificationsPermitted() && tokenString.isNotBlank(),
                         tokenStatus = TokenStatus.Success(tokenString),
                         notificationStatusMessage = "",
+                        isError = false,
                         pushToken = tokenString,
                         pushProvider = provider,
                     )
@@ -133,6 +136,10 @@ data class NotificationUiState(
     val tokenStatus: TokenStatus = TokenStatus.Idle,
     val isNotificationAuthorized: Boolean = false,
     val notificationStatusMessage: String = "",
+    // Drives the status-message color. Not derived from notificationStatusMessage's text —
+    // a prior version matched on "startsWith("Error")" and silently rendered any future
+    // error message green if its wording ever changed.
+    val isError: Boolean = false,
     val pushToken: String = "",
     val pushProvider: Provider? = null,
     val statusMessage: String = "Connect SDK is enabled automatically",
