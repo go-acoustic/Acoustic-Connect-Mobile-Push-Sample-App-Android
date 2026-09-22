@@ -20,7 +20,7 @@ gradle = "8.13.1"
 spotbugs = "5.0.14"
 androidx-lifecycle = "2.6.2"
 androidx-navigation = "2.7.5"
-connectPush = "11.0.34-beta"
+connectPush = "11.0.35-beta"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
